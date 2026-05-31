@@ -1,0 +1,26 @@
+{
+  "n_samples": 17,
+  "cv_rmse_rf": 5.284566411185605,
+  "cv_rmse_gb": 5.729524868549564,
+  "selected": "RandomForest",
+  "test_rmse": 5.160224901308128,
+  "feature_importances": {
+    "instruction_count": 0.043881059064806896,
+    "basic_block_count": 0.008269576574487384,
+    "cfg_edges": 0.015152094573834969,
+    "branch_count": 0.017651421833744307,
+    "phi_count": 0.015206137492611346,
+    "loop_depth_max": 0.0,
+    "call_count": 0.3308373362684834,
+    "load_store_count": 0.014343401888081975,
+    "arithmetic_ops": 0.11119721170234909,
+    "cast_ops": 0.03355483392632561,
+    "cyclomatic_complexity": 0.009787845120494366,
+    "alias_query_density": 0.14417007805537976,
+    "type_graph_complexity": 0.01586175090958691,
+    "inst_per_bb": 0.16948565612123492,
+    "calls_per_bb": 0.07060159646857912
+  },
+  "pearson_r": 0.9698557814035527,
+  "pval": 1.3202099518721875e-10
+}
