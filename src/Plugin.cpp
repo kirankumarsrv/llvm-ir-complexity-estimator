@@ -1,5 +1,6 @@
 #include "FeatureExtractor.h"
 
+#include "llvm/IR/Dominators.h"
 #include "llvm/IR/Module.h"
 #include "llvm/IR/PassManager.h"
 #include "llvm/Passes/PassBuilder.h"
@@ -16,13 +17,18 @@ struct IRComplexityPrinterPass
 
   PreservedAnalyses run(Module &M, ModuleAnalysisManager &) {
     FeatureExtractor ext;
-    auto results = ext.extract(M);
 
     llvm::outs() << "[\n";
     bool first = true;
-    for (const auto &f : results) {
+    for (const Function &F : M) {
+      if (F.isDeclaration())
+        continue;
+
+      DominatorTree DT(const_cast<Function &>(F));
+      LoopInfo LI(DT);
+      auto feat = ext.extractFunction(F, &LI);
       if (!first) llvm::outs() << ",\n";
-      llvm::outs() << f.toJSON();
+      llvm::outs() << feat.toJSON();
       first = false;
     }
     llvm::outs() << "\n]\n";
