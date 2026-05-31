@@ -1,0 +1,6 @@
+file,functions,passes,repeats,elapsed_ms,ms_per_function
+/workspaces/llvm-ir-complexity-estimator/testcases/alias_heavy.ll,1,default<O2>,3,75.335,75.335
+/workspaces/llvm-ir-complexity-estimator/testcases/branchy_loop.ll,1,default<O2>,3,25.71,25.71
+/workspaces/llvm-ir-complexity-estimator/testcases/complex.ll,4,default<O2>,3,27.203,6.801
+/workspaces/llvm-ir-complexity-estimator/testcases/sample.ll,3,default<O2>,3,28.824,9.608
+/workspaces/llvm-ir-complexity-estimator/testcases/type_complex.ll,1,default<O2>,3,22.42,22.42

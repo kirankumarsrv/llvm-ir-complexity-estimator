@@ -53,10 +53,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /root/llvm-complexity-estimator
+CMAKE_SOURCE_DIR = /workspaces/llvm-ir-complexity-estimator
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /root/llvm-complexity-estimator/build
+CMAKE_BINARY_DIR = /workspaces/llvm-ir-complexity-estimator/build
 
 # Utility rule file for omp_gen.
 
@@ -78,6 +78,6 @@ CMakeFiles/omp_gen.dir/clean:
 .PHONY : CMakeFiles/omp_gen.dir/clean
 
 CMakeFiles/omp_gen.dir/depend:
-	cd /root/llvm-complexity-estimator/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /root/llvm-complexity-estimator /root/llvm-complexity-estimator /root/llvm-complexity-estimator/build /root/llvm-complexity-estimator/build /root/llvm-complexity-estimator/build/CMakeFiles/omp_gen.dir/DependInfo.cmake "--color=$(COLOR)"
+	cd /workspaces/llvm-ir-complexity-estimator/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /workspaces/llvm-ir-complexity-estimator /workspaces/llvm-ir-complexity-estimator /workspaces/llvm-ir-complexity-estimator/build /workspaces/llvm-ir-complexity-estimator/build /workspaces/llvm-ir-complexity-estimator/build/CMakeFiles/omp_gen.dir/DependInfo.cmake "--color=$(COLOR)"
 .PHONY : CMakeFiles/omp_gen.dir/depend
 

@@ -30,6 +30,10 @@ struct FunctionFeatures {
   unsigned arithmetic_ops  = 0;  ///< Add/Sub/Mul/Div variants
   unsigned cast_ops        = 0;  ///< Type-cast / conversion instructions
 
+  // ---- Assignment-Specific Proxies ----------------------------------------
+  double alias_query_density   = 0.0; ///< Pointer-sensitive instruction density
+  unsigned type_graph_complexity = 0;  ///< Weighted type-shape complexity
+
   // ---- Derived Complexity -------------------------------------------------
   /// McCabe cyclomatic complexity = CFG edges - CFG nodes + 2
   int cyclomatic_complexity = 0;

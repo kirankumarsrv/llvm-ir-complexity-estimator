@@ -53,10 +53,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /root/llvm-complexity-estimator
+CMAKE_SOURCE_DIR = /workspaces/llvm-ir-complexity-estimator
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /root/llvm-complexity-estimator/build
+CMAKE_BINARY_DIR = /workspaces/llvm-ir-complexity-estimator/build
 
 # Utility rule file for run_smoke_test.
 
@@ -67,8 +67,8 @@ include test/CMakeFiles/run_smoke_test.dir/compiler_depend.make
 include test/CMakeFiles/run_smoke_test.dir/progress.make
 
 test/CMakeFiles/run_smoke_test: IRComplexityExtractor
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --blue --bold --progress-dir=/root/llvm-complexity-estimator/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Running smoke test on sample.ll"
-	cd /root/llvm-complexity-estimator/build/test && ../IRComplexityExtractor /root/llvm-complexity-estimator/test/sample.ll
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --blue --bold --progress-dir=/workspaces/llvm-ir-complexity-estimator/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Running smoke test on sample.ll"
+	cd /workspaces/llvm-ir-complexity-estimator/build/test && ../IRComplexityExtractor /workspaces/llvm-ir-complexity-estimator/test/sample.ll
 
 run_smoke_test: test/CMakeFiles/run_smoke_test
 run_smoke_test: test/CMakeFiles/run_smoke_test.dir/build.make
@@ -79,10 +79,10 @@ test/CMakeFiles/run_smoke_test.dir/build: run_smoke_test
 .PHONY : test/CMakeFiles/run_smoke_test.dir/build
 
 test/CMakeFiles/run_smoke_test.dir/clean:
-	cd /root/llvm-complexity-estimator/build/test && $(CMAKE_COMMAND) -P CMakeFiles/run_smoke_test.dir/cmake_clean.cmake
+	cd /workspaces/llvm-ir-complexity-estimator/build/test && $(CMAKE_COMMAND) -P CMakeFiles/run_smoke_test.dir/cmake_clean.cmake
 .PHONY : test/CMakeFiles/run_smoke_test.dir/clean
 
 test/CMakeFiles/run_smoke_test.dir/depend:
-	cd /root/llvm-complexity-estimator/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /root/llvm-complexity-estimator /root/llvm-complexity-estimator/test /root/llvm-complexity-estimator/build /root/llvm-complexity-estimator/build/test /root/llvm-complexity-estimator/build/test/CMakeFiles/run_smoke_test.dir/DependInfo.cmake "--color=$(COLOR)"
+	cd /workspaces/llvm-ir-complexity-estimator/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /workspaces/llvm-ir-complexity-estimator /workspaces/llvm-ir-complexity-estimator/test /workspaces/llvm-ir-complexity-estimator/build /workspaces/llvm-ir-complexity-estimator/build/test /workspaces/llvm-ir-complexity-estimator/build/test/CMakeFiles/run_smoke_test.dir/DependInfo.cmake "--color=$(COLOR)"
 .PHONY : test/CMakeFiles/run_smoke_test.dir/depend
 

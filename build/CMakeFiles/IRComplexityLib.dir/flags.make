@@ -4,7 +4,7 @@
 # compile CXX with /usr/bin/c++
 CXX_DEFINES = -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS
 
-CXX_INCLUDES = -I/usr/lib/llvm-18/include -I/root/llvm-complexity-estimator/include
+CXX_INCLUDES = -I/usr/lib/llvm-18/include -I/workspaces/llvm-ir-complexity-estimator/include
 
 CXX_FLAGS = -O3 -DNDEBUG -std=gnu++17
 

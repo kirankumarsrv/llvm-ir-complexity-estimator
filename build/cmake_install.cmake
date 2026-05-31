@@ -1,4 +1,4 @@
-# Install script for directory: /root/llvm-complexity-estimator
+# Install script for directory: /workspaces/llvm-ir-complexity-estimator
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -44,7 +44,7 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
-  include("/root/llvm-complexity-estimator/build/test/cmake_install.cmake")
+  include("/workspaces/llvm-ir-complexity-estimator/build/test/cmake_install.cmake")
 endif()
 
 if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT)
@@ -54,7 +54,7 @@ if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT
          FILE "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/bin/IRComplexityExtractor"
          RPATH "")
   endif()
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/bin" TYPE EXECUTABLE FILES "/root/llvm-complexity-estimator/build/IRComplexityExtractor")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/bin" TYPE EXECUTABLE FILES "/workspaces/llvm-ir-complexity-estimator/build/IRComplexityExtractor")
   if(EXISTS "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/bin/IRComplexityExtractor" AND
      NOT IS_SYMLINK "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/bin/IRComplexityExtractor")
     if(CMAKE_INSTALL_DO_STRIP)
@@ -64,7 +64,7 @@ if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT
 endif()
 
 if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT)
-  include("/root/llvm-complexity-estimator/build/CMakeFiles/IRComplexityExtractor.dir/install-cxx-module-bmi-Release.cmake" OPTIONAL)
+  include("/workspaces/llvm-ir-complexity-estimator/build/CMakeFiles/IRComplexityExtractor.dir/install-cxx-module-bmi-Release.cmake" OPTIONAL)
 endif()
 
 if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT)
@@ -74,7 +74,7 @@ if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT
          FILE "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/IRComplexityPlugin.so"
          RPATH "")
   endif()
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" TYPE MODULE FILES "/root/llvm-complexity-estimator/build/IRComplexityPlugin.so")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" TYPE MODULE FILES "/workspaces/llvm-ir-complexity-estimator/build/IRComplexityPlugin.so")
   if(EXISTS "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/IRComplexityPlugin.so" AND
      NOT IS_SYMLINK "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/IRComplexityPlugin.so")
     if(CMAKE_INSTALL_DO_STRIP)
@@ -84,11 +84,11 @@ if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT
 endif()
 
 if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT)
-  include("/root/llvm-complexity-estimator/build/CMakeFiles/IRComplexityPlugin.dir/install-cxx-module-bmi-Release.cmake" OPTIONAL)
+  include("/workspaces/llvm-ir-complexity-estimator/build/CMakeFiles/IRComplexityPlugin.dir/install-cxx-module-bmi-Release.cmake" OPTIONAL)
 endif()
 
 if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/include" TYPE FILE FILES "/root/llvm-complexity-estimator/include/FeatureExtractor.h")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/include" TYPE FILE FILES "/workspaces/llvm-ir-complexity-estimator/include/FeatureExtractor.h")
 endif()
 
 if(CMAKE_INSTALL_COMPONENT)
@@ -99,5 +99,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/root/llvm-complexity-estimator/build/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/workspaces/llvm-ir-complexity-estimator/build/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

@@ -1,0 +1,2 @@
+/usr/bin/ar qc libIRComplexityLib.a CMakeFiles/IRComplexityLib.dir/src/FeatureExtractor.cpp.o
+/usr/bin/ranlib libIRComplexityLib.a
