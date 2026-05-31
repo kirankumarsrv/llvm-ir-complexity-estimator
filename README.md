@@ -257,6 +257,13 @@ difficulty.
 5. Prints results table and summary
 6. Saves full results to `demo_results.txt`
 
+### Demo Evidence
+
+Snapshot images are included in [DEMO.md](DEMO.md):
+
+- Success case: [demo/success.svg](demo/success.svg)
+- Failure case: [demo/failure.svg](demo/failure.svg)
+
 ### Sample output (`test/complex.ll`)
 
 ```

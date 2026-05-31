@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="700" viewBox="0 0 1100 700">
+  <rect width="100%" height="100%" fill="#1f2937"/>
+  <rect x="24" y="24" width="1052" height="652" rx="18" fill="#111827" stroke="#475569"/>
+  <text x="52" y="72" fill="#fee2e2" font-family="monospace" font-size="28" font-weight="700">ML-Guided Compiler Pass Skipping Demo</text>
+  <text x="52" y="110" fill="#fca5a5" font-family="monospace" font-size="20">Failure case: testcases/alias_heavy.ll</text>
+  <text x="52" y="146" fill="#cbd5e1" font-family="monospace" font-size="18">Functions found: 1 | Threshold: 3.0 | Model: complexity_model.pkl</text>
+
+  <rect x="48" y="180" width="1004" height="220" rx="14" fill="#0b1220" stroke="#475569"/>
+  <text x="72" y="224" fill="#e2e8f0" font-family="monospace" font-size="18">Function               CC   BB   Br  Instr    Score    Decision</text>
+  <text x="72" y="258" fill="#fca5a5" font-family="monospace" font-size="18">alias_heavy             1    3    1      9    3.111    SKIP</text>
+  <text x="72" y="314" fill="#cbd5e1" font-family="monospace" font-size="18">Summary: RUN 0 / 1, SKIP 1 / 1</text>
+  <text x="72" y="346" fill="#cbd5e1" font-family="monospace" font-size="18">Estimated compile time saved: ~50 ms</text>
+
+  <rect x="48" y="430" width="1004" height="188" rx="14" fill="#312e81" fill-opacity="0.18" stroke="#6366f1"/>
+  <text x="72" y="472" fill="#e2e8f0" font-family="monospace" font-size="18">Why this is a failure case:</text>
+  <text x="72" y="504" fill="#cbd5e1" font-family="monospace" font-size="18">The function is alias-heavy, so it is exactly the kind of code that</text>
+  <text x="72" y="532" fill="#cbd5e1" font-family="monospace" font-size="18">should be reviewed before skipping a vectorization-oriented pass.</text>
+  <text x="72" y="560" fill="#cbd5e1" font-family="monospace" font-size="18">This snapshot acts as the cautionary counterexample for the demo.</text>
+</svg>

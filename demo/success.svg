@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="760" viewBox="0 0 1100 760">
+  <rect width="100%" height="100%" fill="#0f172a"/>
+  <rect x="24" y="24" width="1052" height="712" rx="18" fill="#111827" stroke="#334155"/>
+  <text x="52" y="72" fill="#e2e8f0" font-family="monospace" font-size="28" font-weight="700">ML-Guided Compiler Pass Skipping Demo</text>
+  <text x="52" y="110" fill="#93c5fd" font-family="monospace" font-size="20">Success case: testcases/complex.ll</text>
+  <text x="52" y="146" fill="#cbd5e1" font-family="monospace" font-size="18">Functions found: 4 | Threshold: 3.0 | Model: complexity_model.pkl</text>
+
+  <rect x="48" y="180" width="1004" height="360" rx="14" fill="#0b1220" stroke="#334155"/>
+  <text x="72" y="224" fill="#e2e8f0" font-family="monospace" font-size="18">Function               CC   BB   Br  Instr    Score    Decision</text>
+  <text x="72" y="256" fill="#a7f3d0" font-family="monospace" font-size="18">no_op                   1    1    0      1    2.847    RUN</text>
+  <text x="72" y="288" fill="#a7f3d0" font-family="monospace" font-size="18">heavy_arith             1    1    0     13    2.825    RUN</text>
+  <text x="72" y="320" fill="#fca5a5" font-family="monospace" font-size="18">nested_loops            4   10    3     23    8.210    SKIP</text>
+  <text x="72" y="352" fill="#fca5a5" font-family="monospace" font-size="18">many_branches           6   14    5     30   10.791    SKIP</text>
+  <text x="72" y="400" fill="#cbd5e1" font-family="monospace" font-size="18">Summary: RUN 2 / 4, SKIP 2 / 4</text>
+  <text x="72" y="432" fill="#cbd5e1" font-family="monospace" font-size="18">Estimated compile time saved: ~100 ms</text>
+  <text x="72" y="464" fill="#cbd5e1" font-family="monospace" font-size="18">Interpretation: keeps low-complexity functions while skipping the more</text>
+  <text x="72" y="492" fill="#cbd5e1" font-family="monospace" font-size="18">loop-heavy functions that are less likely to benefit from LoopVectorize.</text>
+
+  <text x="52" y="654" fill="#94a3b8" font-family="monospace" font-size="16">Snapshot generated from the real demo script output.</text>
+</svg>
