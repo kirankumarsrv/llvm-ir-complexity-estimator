@@ -7,7 +7,7 @@ usage() {
   cat <<'EOF'
 Usage:
   ./run.sh extract <file.ll> [more.ll ...]
-  ./run.sh train [ir.ll ...]
+  ./run.sh train [--synthetic | --timing <csv> --corpus <dir>]
   ./run.sh demo [file.ll]
   ./run.sh benchmark [file.ll ...]
 EOF
@@ -26,7 +26,21 @@ case "$mode" in
     exec "$ROOT_DIR/build/IRComplexityExtractor" "$@"
     ;;
   train)
-    exec python3 "$ROOT_DIR/python/train.py" "$@"
+    if [[ ${1:-} == "--synthetic" ]]; then
+      shift || true
+      exec python3 "$ROOT_DIR/python/train.py" "$@"
+    elif [[ $# -eq 0 ]]; then
+      exec python3 "$ROOT_DIR/python/retrain_from_timing.py" \
+        --timing "$ROOT_DIR/python/timing_corpus.csv" \
+        --corpus "$ROOT_DIR/corpus_ll"
+    elif [[ ${1:-} == "--timing" || ${1:-} == "--corpus" || ${1:-} == "--extractor" || ${1:-} == "--out-model" || ${1:-} == "--out-eval" || ${1:-} == "--aggregate-file" ]]; then
+      exec python3 "$ROOT_DIR/python/retrain_from_timing.py" \
+        --timing "$ROOT_DIR/python/timing_corpus.csv" \
+        --corpus "$ROOT_DIR/corpus_ll" \
+        "$@"
+    else
+      exec python3 "$ROOT_DIR/python/train.py" "$@"
+    fi
     ;;
   demo)
     exec python3 "$ROOT_DIR/python/demo_pass_skipping.py" "${1:-$ROOT_DIR/testcases/complex.ll}"

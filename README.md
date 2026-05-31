@@ -203,17 +203,17 @@ opt --load-pass-plugin=./build/IRComplexityPlugin.so \
 ```bash
 pip install -r python/requirements.txt
 
-# Train on synthetic data (500 samples)
-./run.sh train
+# Train on the real timing corpus (default when `python/timing_corpus.csv` exists)
+./run.sh train --timing python/timing_corpus.csv --corpus corpus_ll
 
-# Or train on real IR files
-./run.sh train testcases/complex.ll testcases/sample.ll
+# Or use the synthetic/demo trainer explicitly
+./run.sh train --synthetic
 ```
 
 ### Model architecture
 
-The pipeline compares two estimators via 5-fold cross-validation and selects
-the best:
+The synthetic demo pipeline compares two estimators via 5-fold cross-validation
+and selects the best:
 
 | Model | CV RMSE | CV Std |
 |---|---|---|
