@@ -32,7 +32,7 @@ case "$mode" in
     exec python3 "$ROOT_DIR/python/demo_pass_skipping.py" "${1:-$ROOT_DIR/testcases/complex.ll}"
     ;;
   benchmark)
-    exec python3 "$ROOT_DIR/python/measure_pass_times.py" "$@"
+    exec python3 "$ROOT_DIR/python/measure_pass_times.py" --per-function "$@"
     ;;
   -h|--help|help)
     usage

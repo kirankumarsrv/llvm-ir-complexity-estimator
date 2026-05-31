@@ -40,4 +40,5 @@ collecting compile-time measurements on a chosen `opt` pipeline.
 - `./run.sh extract <file.ll>` runs the feature extractor.
 - `./run.sh train` trains the model.
 - `./run.sh demo [file.ll]` runs the pass-skipping demo.
-- `./run.sh benchmark [file.ll ...]` collects timing data.
+- `./run.sh benchmark [file.ll ...]` collects per-function/pass timing data using
+	the function-extraction harness.
