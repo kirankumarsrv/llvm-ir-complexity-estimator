@@ -1,26 +1,26 @@
 [
 {
-  "directory": "/root/llvm-complexity-estimator/build",
-  "command": "/usr/bin/c++ -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/usr/lib/llvm-18/include -I/root/llvm-complexity-estimator/include -O3 -DNDEBUG -std=gnu++17 -o CMakeFiles/IRComplexityLib.dir/src/FeatureExtractor.cpp.o -c /root/llvm-complexity-estimator/src/FeatureExtractor.cpp",
-  "file": "/root/llvm-complexity-estimator/src/FeatureExtractor.cpp",
+  "directory": "/workspaces/llvm-ir-complexity-estimator/build",
+  "command": "/usr/bin/c++ -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/usr/lib/llvm-18/include -I/workspaces/llvm-ir-complexity-estimator/include -O3 -DNDEBUG -std=gnu++17 -o CMakeFiles/IRComplexityLib.dir/src/FeatureExtractor.cpp.o -c /workspaces/llvm-ir-complexity-estimator/src/FeatureExtractor.cpp",
+  "file": "/workspaces/llvm-ir-complexity-estimator/src/FeatureExtractor.cpp",
   "output": "CMakeFiles/IRComplexityLib.dir/src/FeatureExtractor.cpp.o"
 },
 {
-  "directory": "/root/llvm-complexity-estimator/build",
-  "command": "/usr/bin/c++ -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/usr/lib/llvm-18/include -I/root/llvm-complexity-estimator/include -O3 -DNDEBUG -std=gnu++17 -o CMakeFiles/IRComplexityExtractor.dir/src/main.cpp.o -c /root/llvm-complexity-estimator/src/main.cpp",
-  "file": "/root/llvm-complexity-estimator/src/main.cpp",
+  "directory": "/workspaces/llvm-ir-complexity-estimator/build",
+  "command": "/usr/bin/c++ -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/usr/lib/llvm-18/include -I/workspaces/llvm-ir-complexity-estimator/include -O3 -DNDEBUG -std=gnu++17 -o CMakeFiles/IRComplexityExtractor.dir/src/main.cpp.o -c /workspaces/llvm-ir-complexity-estimator/src/main.cpp",
+  "file": "/workspaces/llvm-ir-complexity-estimator/src/main.cpp",
   "output": "CMakeFiles/IRComplexityExtractor.dir/src/main.cpp.o"
 },
 {
-  "directory": "/root/llvm-complexity-estimator/build",
-  "command": "/usr/bin/c++ -DIRComplexityPlugin_EXPORTS -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/usr/lib/llvm-18/include -I/root/llvm-complexity-estimator/include -O3 -DNDEBUG -std=gnu++17 -fPIC -o CMakeFiles/IRComplexityPlugin.dir/src/FeatureExtractor.cpp.o -c /root/llvm-complexity-estimator/src/FeatureExtractor.cpp",
-  "file": "/root/llvm-complexity-estimator/src/FeatureExtractor.cpp",
+  "directory": "/workspaces/llvm-ir-complexity-estimator/build",
+  "command": "/usr/bin/c++ -DIRComplexityPlugin_EXPORTS -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/usr/lib/llvm-18/include -I/workspaces/llvm-ir-complexity-estimator/include -O3 -DNDEBUG -std=gnu++17 -fPIC -o CMakeFiles/IRComplexityPlugin.dir/src/FeatureExtractor.cpp.o -c /workspaces/llvm-ir-complexity-estimator/src/FeatureExtractor.cpp",
+  "file": "/workspaces/llvm-ir-complexity-estimator/src/FeatureExtractor.cpp",
   "output": "CMakeFiles/IRComplexityPlugin.dir/src/FeatureExtractor.cpp.o"
 },
 {
-  "directory": "/root/llvm-complexity-estimator/build",
-  "command": "/usr/bin/c++ -DIRComplexityPlugin_EXPORTS -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/usr/lib/llvm-18/include -I/root/llvm-complexity-estimator/include -O3 -DNDEBUG -std=gnu++17 -fPIC -o CMakeFiles/IRComplexityPlugin.dir/src/Plugin.cpp.o -c /root/llvm-complexity-estimator/src/Plugin.cpp",
-  "file": "/root/llvm-complexity-estimator/src/Plugin.cpp",
+  "directory": "/workspaces/llvm-ir-complexity-estimator/build",
+  "command": "/usr/bin/c++ -DIRComplexityPlugin_EXPORTS -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/usr/lib/llvm-18/include -I/workspaces/llvm-ir-complexity-estimator/include -O3 -DNDEBUG -std=gnu++17 -fPIC -o CMakeFiles/IRComplexityPlugin.dir/src/Plugin.cpp.o -c /workspaces/llvm-ir-complexity-estimator/src/Plugin.cpp",
+  "file": "/workspaces/llvm-ir-complexity-estimator/src/Plugin.cpp",
   "output": "CMakeFiles/IRComplexityPlugin.dir/src/Plugin.cpp.o"
 }
 ]

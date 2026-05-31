@@ -9,6 +9,7 @@
 
 #include "FeatureExtractor.h"
 
+#include "llvm/IR/Dominators.h"
 #include "llvm/IR/LLVMContext.h"
 #include "llvm/IR/Module.h"
 #include "llvm/IRReader/IRReader.h"
@@ -43,10 +44,15 @@ int main(int argc, char **argv) {
       continue;
     }
 
-    auto features = extractor.extract(*mod);
-    for (const auto &f : features) {
+    for (const Function &F : *mod) {
+      if (F.isDeclaration())
+        continue;
+
+      DominatorTree DT(const_cast<Function &>(F));
+      LoopInfo LI(DT);
+      auto feat = extractor.extractFunction(F, &LI);
       if (!first) llvm::outs() << ",\n";
-      llvm::outs() << f.toJSON();
+      llvm::outs() << feat.toJSON();
       first = false;
     }
   }

@@ -44,6 +44,8 @@ FEATURE_COLS = [
     "arithmetic_ops",
     "cast_ops",
     "cyclomatic_complexity",
+    "alias_query_density",
+    "type_graph_complexity",
 ]
 
 
@@ -123,9 +125,11 @@ def main():
     W_BAR  = 22
     W_DEC  = 6
 
-    header = (f"  {"Function":<{W_FN}} {"CC":>{W_CC}} {"BB":>{W_BB}} "
-              f"{"Br":>{W_BR}} {"Instr":>{W_INSTR}} "
-              f"{"Score":>{W_SCORE}}  {"":^{W_BAR}}  {"Decision":<10}")
+    header = (
+        f"  {'Function':<{W_FN}} {'CC':>{W_CC}} {'BB':>{W_BB}} "
+        f"{'Br':>{W_BR}} {'Instr':>{W_INSTR}} "
+        f"{'Score':>{W_SCORE}}  {'':^{W_BAR}}  {'Decision':<10}"
+    )
     sep    = "  " + "-" * (len(header) - 2)
 
     print(header)
@@ -200,8 +204,10 @@ def main():
     lines.append(f"IR file  : {ir_file}")
     lines.append(f"Threshold: {SKIP_THRESHOLD}")
     lines.append("")
-    lines.append(f"  {"Function":<20} {"CC":>4} {"BB":>4} {"Br":>4} "
-                 f"{"Instr":>6} {"Score":>8}  {"Decision":<10}  Reason")
+    lines.append(
+        f"  {'Function':<20} {'CC':>4} {'BB':>4} {'Br':>4} "
+        f"{'Instr':>6} {'Score':>8}  {'Decision':<10}  Reason"
+    )
     lines.append("  " + "-" * 78)
     for r in results:
         lines.append(

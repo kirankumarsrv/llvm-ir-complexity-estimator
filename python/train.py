@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """LLVM IR Complexity Estimator -- Training Pipeline.
 
-Uses all 11 features produced by IRComplexityExtractor (including
-cyclomatic_complexity as an input feature) to predict a composite
+Uses the extracted structural features produced by IRComplexityExtractor
+(including cyclomatic_complexity, alias_query_density, and
+type_graph_complexity as input features) to predict a composite
 complexity_score target.
 """
 import json
@@ -26,7 +27,7 @@ warnings.filterwarnings("ignore")
 EXTRACTOR_BIN = Path(__file__).parent.parent / "build" / "IRComplexityExtractor"
 MODEL_PATH    = Path(__file__).parent / "complexity_model.pkl"
 
-# All 11 features produced by the C++ extractor -- in the same order
+# All 13 features produced by the C++ extractor -- in the same order
 # as the JSON output.  cyclomatic_complexity is the 11th INPUT feature;
 # it is NOT the target.  The target is the derived complexity_score below.
 FEATURE_COLS = [
@@ -40,13 +41,15 @@ FEATURE_COLS = [
     "load_store_count",
     "arithmetic_ops",
     "cast_ops",
-    "cyclomatic_complexity",   # 11th feature -- McCabe E-N+2
+    "cyclomatic_complexity",   # McCabe E-N+2
+    "alias_query_density",
+    "type_graph_complexity",
 ]
 TARGET_COL = "complexity_score"   # composite label (see make_synthetic_data)
 
 
 def load_from_ir(ir_files):
-    """Run IRComplexityExtractor and return a DataFrame with all 11 features.
+    """Run IRComplexityExtractor and return a DataFrame with all 13 features.
 
     The caller is responsible for providing a TARGET_COL column if training;
     for inference-only use predict() directly.
@@ -57,7 +60,7 @@ def load_from_ir(ir_files):
     rows = []
     for rec in records:
         row = {"function": rec["function"]}
-        row.update(rec["features"])   # adds all 11 features incl. cyclomatic_complexity
+        row.update(rec["features"])   # adds all extracted features
         rows.append(row)
     df = pd.DataFrame(rows)
     # Validate that every expected feature column is present
@@ -67,25 +70,30 @@ def load_from_ir(ir_files):
     return df
 
 
-def compute_complexity_score(bb, br, cc, loop_depth, calls, instr):
+def compute_complexity_score(bb, br, cc, loop_depth, calls, instr,
+                             alias_density, type_complexity):
     """Weighted composite complexity score (target label).
 
     Combines McCabe CC, loop depth, call density, branch density, and
     instruction volume into a single float label >= 1.0.
     Formula (tunable):
         score = 1.5*cc + 2.0*loop_depth + 0.5*(calls/5) +
-                0.3*(br/(bb+1)) * instr_norm
+            0.3*(br/(bb+1)) * instr_norm + 0.8*alias_density +
+            0.05*type_complexity
     clipped to [1, 50].
     """
     instr_norm = np.log1p(instr)           # log-scale instruction volume
     call_contrib  = 0.5 * (calls / 5.0)
     branch_contrib = 0.3 * (br / (bb + 1)) * instr_norm
-    score = (1.5 * cc + 2.0 * loop_depth + call_contrib + branch_contrib)
+    alias_contrib = 0.8 * alias_density
+    type_contrib = 0.05 * type_complexity
+    score = (1.5 * cc + 2.0 * loop_depth + call_contrib + branch_contrib +
+             alias_contrib + type_contrib)
     return np.clip(score, 1.0, 50.0)
 
 
 def make_synthetic_data(n_samples=500, seed=42):
-    """Generate synthetic data with all 11 feature columns + complexity_score target.
+    """Generate synthetic data with all 13 feature columns + complexity_score target.
 
     All column names match exactly what IRComplexityExtractor produces.
     """
@@ -102,12 +110,18 @@ def make_synthetic_data(n_samples=500, seed=42):
     casts      = rng.integers(0, bb * 2,  size=n_samples)
     instr      = (ls + arith + casts + calls + br + phi
                   + rng.integers(1, 10, size=n_samples))
+    alias_density = rng.random(n_samples) * 1.8 + (calls / (instr + 1.0))
+    type_complexity = (rng.integers(1, 8, size=n_samples)
+                       + (bb // 5)
+                       + (casts > 0).astype(int)).astype(float)
 
     # cyclomatic_complexity: McCabe formula E - N + 2 (with small noise)
     cc = (cfg_edges - bb + 2 + rng.integers(-1, 2, size=n_samples)).clip(1)
 
     # complexity_score: composite TARGET derived from all features
-    score = compute_complexity_score(bb, br, cc, loop_depth, calls, instr)
+    score = compute_complexity_score(
+        bb, br, cc, loop_depth, calls, instr, alias_density, type_complexity
+    )
 
     return pd.DataFrame({
         "function":             [f"func_{i}" for i in range(n_samples)],
@@ -121,7 +135,9 @@ def make_synthetic_data(n_samples=500, seed=42):
         "load_store_count":     ls,
         "arithmetic_ops":       arith,
         "cast_ops":             casts,
-        "cyclomatic_complexity": cc,      # 11th input feature
+        "cyclomatic_complexity": cc,
+        "alias_query_density":  alias_density,
+        "type_graph_complexity": type_complexity,
         TARGET_COL:             score,    # label
     })
 
@@ -131,7 +147,7 @@ def predict(model, feature_dict):
 
     Args:
         model: loaded joblib Pipeline
-        feature_dict: dict with all 11 FEATURE_COLS keys
+        feature_dict: dict with all 13 FEATURE_COLS keys
     Returns:
         float: predicted complexity_score
     """
@@ -149,14 +165,14 @@ def train(df):
     print(f"  Features ({len(FEATURE_COLS)}): {FEATURE_COLS}")
     print(f"  Target  : {TARGET_COL}")
 
-    # Guard: all 11 feature columns must be present
+    # Guard: all 13 feature columns must be present
     missing = [c for c in FEATURE_COLS if c not in df.columns]
     if missing:
         raise ValueError(f"DataFrame is missing feature columns: {missing}")
 
     # .to_numpy() strips pandas column-name metadata so sklearn never
     # sees a DataFrame and emits the "fitted without feature names" warning.
-    X = df[FEATURE_COLS].to_numpy(dtype=float)  # shape (n, 11)
+    X = df[FEATURE_COLS].to_numpy(dtype=float)  # shape (n, 13)
     y = df[TARGET_COL].values
 
     print("\n[1/3] Cross-validation (5-fold) ...")
@@ -246,14 +262,17 @@ def train(df):
         "load_store_count":     0,
         "arithmetic_ops":       2,
         "cast_ops":             0,
-        "cyclomatic_complexity": 1,  # 11th feature
+        "cyclomatic_complexity": 1,
+        "alias_query_density":  0.0,
+        "type_graph_complexity": 2,
     }
     factorial_score = predict(loaded, factorial_features)
     # Analytical expected value using our formula:
     expected = float(compute_complexity_score(
         bb=np.array([3]), br=np.array([1]), cc=np.array([1]),
         loop_depth=np.array([0]), calls=np.array([1]),
-        instr=np.array([7])
+        instr=np.array([7]),
+        alias_density=np.array([0.0]), type_complexity=np.array([2.0])
     )[0])
     print(f"  factorial predicted complexity_score : {factorial_score:.4f}")
     print(f"  analytical expected (formula)        : {expected:.4f}")
@@ -277,6 +296,8 @@ if __name__ == "__main__":
             loop_depth=df["loop_depth_max"].values,
             calls=df["call_count"].values,
             instr=df["instruction_count"].values,
+            alias_density=df["alias_query_density"].values,
+            type_complexity=df["type_graph_complexity"].values,
         )
     else:
         print("No IR files specified -- using synthetic data for demonstration.")

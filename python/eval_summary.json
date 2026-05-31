@@ -1,0 +1,42 @@
+{
+  "rows": [
+    {
+      "file": "testcases/alias_heavy.ll",
+      "n_funcs": 1,
+      "mean_score": 3.1110534962044287,
+      "elapsed_ms": 75.335,
+      "ms_per_func": 75.335
+    },
+    {
+      "file": "testcases/branchy_loop.ll",
+      "n_funcs": 1,
+      "mean_score": 6.018261262057943,
+      "elapsed_ms": 25.71,
+      "ms_per_func": 25.71
+    },
+    {
+      "file": "testcases/complex.ll",
+      "n_funcs": 4,
+      "mean_score": 6.168020359288825,
+      "elapsed_ms": 27.203,
+      "ms_per_func": 6.801
+    },
+    {
+      "file": "testcases/sample.ll",
+      "n_funcs": 3,
+      "mean_score": 3.4071494247215095,
+      "elapsed_ms": 28.824,
+      "ms_per_func": 9.608
+    },
+    {
+      "file": "testcases/type_complex.ll",
+      "n_funcs": 1,
+      "mean_score": 3.561156592301517,
+      "elapsed_ms": 22.42,
+      "ms_per_func": 22.42
+    }
+  ],
+  "pearson_r": -0.4750469212329366,
+  "pval": 0.4187407700303974,
+  "rmse_norm": 1.7175837221125125
+}

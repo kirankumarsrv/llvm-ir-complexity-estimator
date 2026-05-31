@@ -53,10 +53,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /root/llvm-complexity-estimator
+CMAKE_SOURCE_DIR = /workspaces/llvm-ir-complexity-estimator
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /root/llvm-complexity-estimator/build
+CMAKE_BINARY_DIR = /workspaces/llvm-ir-complexity-estimator/build
 
 # Include any dependencies generated for this target.
 include CMakeFiles/IRComplexityLib.dir/depend.make
@@ -70,18 +70,18 @@ include CMakeFiles/IRComplexityLib.dir/progress.make
 include CMakeFiles/IRComplexityLib.dir/flags.make
 
 CMakeFiles/IRComplexityLib.dir/src/FeatureExtractor.cpp.o: CMakeFiles/IRComplexityLib.dir/flags.make
-CMakeFiles/IRComplexityLib.dir/src/FeatureExtractor.cpp.o: /root/llvm-complexity-estimator/src/FeatureExtractor.cpp
+CMakeFiles/IRComplexityLib.dir/src/FeatureExtractor.cpp.o: /workspaces/llvm-ir-complexity-estimator/src/FeatureExtractor.cpp
 CMakeFiles/IRComplexityLib.dir/src/FeatureExtractor.cpp.o: CMakeFiles/IRComplexityLib.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/root/llvm-complexity-estimator/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/IRComplexityLib.dir/src/FeatureExtractor.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/IRComplexityLib.dir/src/FeatureExtractor.cpp.o -MF CMakeFiles/IRComplexityLib.dir/src/FeatureExtractor.cpp.o.d -o CMakeFiles/IRComplexityLib.dir/src/FeatureExtractor.cpp.o -c /root/llvm-complexity-estimator/src/FeatureExtractor.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/workspaces/llvm-ir-complexity-estimator/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/IRComplexityLib.dir/src/FeatureExtractor.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/IRComplexityLib.dir/src/FeatureExtractor.cpp.o -MF CMakeFiles/IRComplexityLib.dir/src/FeatureExtractor.cpp.o.d -o CMakeFiles/IRComplexityLib.dir/src/FeatureExtractor.cpp.o -c /workspaces/llvm-ir-complexity-estimator/src/FeatureExtractor.cpp
 
 CMakeFiles/IRComplexityLib.dir/src/FeatureExtractor.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/IRComplexityLib.dir/src/FeatureExtractor.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /root/llvm-complexity-estimator/src/FeatureExtractor.cpp > CMakeFiles/IRComplexityLib.dir/src/FeatureExtractor.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /workspaces/llvm-ir-complexity-estimator/src/FeatureExtractor.cpp > CMakeFiles/IRComplexityLib.dir/src/FeatureExtractor.cpp.i
 
 CMakeFiles/IRComplexityLib.dir/src/FeatureExtractor.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/IRComplexityLib.dir/src/FeatureExtractor.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /root/llvm-complexity-estimator/src/FeatureExtractor.cpp -o CMakeFiles/IRComplexityLib.dir/src/FeatureExtractor.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /workspaces/llvm-ir-complexity-estimator/src/FeatureExtractor.cpp -o CMakeFiles/IRComplexityLib.dir/src/FeatureExtractor.cpp.s
 
 # Object files for target IRComplexityLib
 IRComplexityLib_OBJECTS = \
@@ -93,7 +93,7 @@ IRComplexityLib_EXTERNAL_OBJECTS =
 libIRComplexityLib.a: CMakeFiles/IRComplexityLib.dir/src/FeatureExtractor.cpp.o
 libIRComplexityLib.a: CMakeFiles/IRComplexityLib.dir/build.make
 libIRComplexityLib.a: CMakeFiles/IRComplexityLib.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/root/llvm-complexity-estimator/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX static library libIRComplexityLib.a"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/workspaces/llvm-ir-complexity-estimator/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX static library libIRComplexityLib.a"
 	$(CMAKE_COMMAND) -P CMakeFiles/IRComplexityLib.dir/cmake_clean_target.cmake
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/IRComplexityLib.dir/link.txt --verbose=$(VERBOSE)
 
@@ -106,6 +106,6 @@ CMakeFiles/IRComplexityLib.dir/clean:
 .PHONY : CMakeFiles/IRComplexityLib.dir/clean
 
 CMakeFiles/IRComplexityLib.dir/depend:
-	cd /root/llvm-complexity-estimator/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /root/llvm-complexity-estimator /root/llvm-complexity-estimator /root/llvm-complexity-estimator/build /root/llvm-complexity-estimator/build /root/llvm-complexity-estimator/build/CMakeFiles/IRComplexityLib.dir/DependInfo.cmake "--color=$(COLOR)"
+	cd /workspaces/llvm-ir-complexity-estimator/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /workspaces/llvm-ir-complexity-estimator /workspaces/llvm-ir-complexity-estimator /workspaces/llvm-ir-complexity-estimator/build /workspaces/llvm-ir-complexity-estimator/build /workspaces/llvm-ir-complexity-estimator/build/CMakeFiles/IRComplexityLib.dir/DependInfo.cmake "--color=$(COLOR)"
 .PHONY : CMakeFiles/IRComplexityLib.dir/depend
 

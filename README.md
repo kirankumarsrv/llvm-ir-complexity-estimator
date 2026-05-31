@@ -7,7 +7,7 @@ would have negligible benefit.
 
 ```
 ┌─────────────────────┐     ┌──────────────────────┐     ┌─────────────────────┐
-│  LLVM IR (.ll/.bc)  │────▶│ IRComplexityExtractor│────▶│  11 features (JSON) │
+│  LLVM IR (.ll/.bc)  │────▶│ IRComplexityExtractor│────▶│  13 features (JSON) │
 └─────────────────────┘     │      (C++ / LLVM 18) │     └──────────┬──────────┘
                              └──────────────────────┘                │
                                                                       ▼
@@ -24,16 +24,22 @@ would have negligible benefit.
 ```
 llvm-complexity-estimator/
 ├── CMakeLists.txt               # LLVM 18 CMake configuration
+├── build.sh                     # Build wrapper
+├── run.sh                       # Run wrapper
+├── DESIGN.md                    # Design write-up
+├── IMPLEMENTATION.md            # Implementation write-up
+├── EVALUATION.md                # Evaluation template
 ├── include/
 │   └── FeatureExtractor.h       # C++ feature extraction API
 ├── src/
-│   ├── FeatureExtractor.cpp     # LLVM IR analysis — 11 features
+│   ├── FeatureExtractor.cpp     # LLVM IR analysis — 13 features
 │   ├── Plugin.cpp               # opt-loadable pass plugin registration
 │   └── main.cpp                 # CLI tool → JSON output
 ├── python/
 │   ├── train.py                 # ML training pipeline (RF + GradientBoosting)
 │   ├── extract_features.py      # Python wrapper around the C++ extractor
 │   ├── demo_pass_skipping.py    # ML-guided LoopVectorize pass-skipping demo
+│   ├── measure_pass_times.py    # Timing helper for evaluation data
 │   ├── complexity_model.pkl     # Trained sklearn Pipeline (auto-generated)
 │   ├── demo_results.txt         # Demo output saved to disk (auto-generated)
 │   └── requirements.txt         # Python dependencies
@@ -41,6 +47,12 @@ llvm-complexity-estimator/
 │   ├── sample.ll                # Simple IR smoke-test (3 functions)
 │   ├── complex.ll               # Richer IR for pass-skipping demo (4 functions)
 │   └── CMakeLists.txt           # Smoke-test build target
+├── testcases/
+│   ├── alias_heavy.ll           # Pointer-heavy testcase
+│   ├── branchy_loop.ll          # Mixed control-flow testcase
+│   ├── complex.ll               # Demo testcase copy
+│   ├── sample.ll                # Smoke-test testcase copy
+│   └── type_complex.ll          # Type-shape testcase
 └── README.md
 ```
 
@@ -71,14 +83,7 @@ sudo apt install llvm-18 clang-18 libzstd-dev
 ## Build
 
 ```bash
-cd /root/llvm-complexity-estimator
-
-# Configure
-mkdir -p build && cd build
-cmake .. -DCMAKE_BUILD_TYPE=Release
-
-# Compile (parallel)
-make -j$(nproc)
+./build.sh
 ```
 
 Build outputs:
@@ -96,7 +101,7 @@ Build outputs:
 
 ## Extracted Features
 
-The C++ extractor produces **11 features** per function:
+The C++ extractor produces **13 features** per function:
 
 | # | Feature | Description |
 |---|---------|-------------|
@@ -110,7 +115,9 @@ The C++ extractor produces **11 features** per function:
 | 8 | `load_store_count` | Load + Store instructions |
 | 9 | `arithmetic_ops` | Add / Sub / Mul / Div variants |
 | 10 | `cast_ops` | Type-cast / conversion instructions |
-| 11 | `cyclomatic_complexity` | McCabe metric = E − N + 2 |
+| 11 | `alias_query_density` | Pointer-sensitive instruction density proxy |
+| 12 | `type_graph_complexity` | Weighted type-shape complexity proxy |
+| 13 | `cyclomatic_complexity` | McCabe metric = E − N + 2 |
 
 ---
 
@@ -123,7 +130,7 @@ The C++ extractor produces **11 features** per function:
 clang-18 -O0 -emit-llvm -S myfile.c -o myfile.ll
 
 # Extract features — JSON output
-./build/IRComplexityExtractor myfile.ll
+./run.sh extract myfile.ll
 ```
 
 **Sample output** (`test/sample.ll`):
@@ -194,20 +201,19 @@ opt --load-pass-plugin=./build/IRComplexityPlugin.so \
 ## ML Training Pipeline
 
 ```bash
-cd python
-pip install -r requirements.txt
+pip install -r python/requirements.txt
 
-# Train on synthetic data (500 samples)
-python3 train.py
+# Train on the real timing corpus (default when `python/timing_corpus.csv` exists)
+./run.sh train --timing python/timing_corpus.csv --corpus corpus_ll
 
-# Or train on real IR files
-python3 train.py ../test/complex.ll ../test/sample.ll
+# Or use the synthetic/demo trainer explicitly
+./run.sh train --synthetic
 ```
 
 ### Model architecture
 
-The pipeline compares two estimators via 5-fold cross-validation and selects
-the best:
+The synthetic demo pipeline compares two estimators via 5-fold cross-validation
+and selects the best:
 
 | Model | CV RMSE | CV Std |
 |---|---|---|
@@ -219,7 +225,7 @@ the best:
 
 ### Target: `complexity_score`
 
-All 11 extracted features are **inputs**. The training target is a composite
+All 13 extracted features are **inputs**. The training target is a composite
 `complexity_score` label derived from the features:
 
 ```
@@ -236,9 +242,8 @@ difficulty.
 ## Pass-Skipping Demo
 
 ```bash
-cd python
-python3 demo_pass_skipping.py                      # uses test/complex.ll
-python3 demo_pass_skipping.py ../test/sample.ll    # custom IR file
+./run.sh demo
+./run.sh demo testcases/sample.ll
 ```
 
 ### How it works
@@ -251,6 +256,13 @@ python3 demo_pass_skipping.py ../test/sample.ll    # custom IR file
    - `score ≤ 3.0` → **RUN** `LoopVectorize`
 5. Prints results table and summary
 6. Saves full results to `demo_results.txt`
+
+### Demo Evidence
+
+Snapshot images are included in [DEMO.md](DEMO.md):
+
+- Success case: [demo/success.svg](demo/success.svg)
+- Failure case: [demo/failure.svg](demo/failure.svg)
 
 ### Sample output (`test/complex.ll`)
 
@@ -318,7 +330,7 @@ from pathlib import Path
 # Load model
 model = joblib.load("python/complexity_model.pkl")
 
-# Predict for a single function (all 11 features required)
+# Predict for a single function (all 13 features required)
 features = {
     "instruction_count":    7,
     "basic_block_count":    3,
@@ -330,7 +342,9 @@ features = {
     "load_store_count":     0,
     "arithmetic_ops":       2,
     "cast_ops":             0,
-    "cyclomatic_complexity": 1,   # 11th feature
+    "alias_query_density":   0.0,
+    "type_graph_complexity": 2,
+    "cyclomatic_complexity": 1,
 }
 
 FEATURE_COLS = list(features.keys())
@@ -347,5 +361,5 @@ print(f"complexity_score: {score:.3f}")   # → 2.201
 |---|---|
 | `opt` plugin: "registered more than once" | Plugin links only `LLVMCore` + `-Wl,--exclude-libs,ALL`; pass registration moved to `src/Plugin.cpp` |
 | `complexity_model.pkl` corrupted | `mean_squared_error(squared=False)` removed in sklearn ≥ 1.4 — replaced with `math.sqrt(mse)` |
-| Feature mismatch (10 vs 11 features) | `cyclomatic_complexity` added to `FEATURE_COLS` as 11th input; target changed to composite `complexity_score` |
+| Feature mismatch (10 vs 13 features) | `cyclomatic_complexity`, `alias_query_density`, and `type_graph_complexity` added to `FEATURE_COLS`; target changed to composite `complexity_score` |
 | `UserWarning: StandardScaler fitted without feature names` | All training and inference paths use `.to_numpy(dtype=float)` / `np.asarray(..., dtype=float)` |

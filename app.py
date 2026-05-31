@@ -21,6 +21,7 @@ FEATURE_COLS = [
     "branch_count", "phi_count", "loop_depth_max", "call_count",
     "load_store_count", "arithmetic_ops", "cast_ops",
     "cyclomatic_complexity",
+    "alias_query_density", "type_graph_complexity",
 ]
 
 app = Flask(__name__)
