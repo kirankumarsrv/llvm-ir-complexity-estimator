@@ -78,3 +78,47 @@ Artifacts generated from latest run:
    which is expected because target variance rises with added projects.
 - For pass-skipping policy, correlation is often more important than absolute
    calibration since the decision boundary is threshold/ranking-based.
+
+## Real Evaluation Summary
+
+This section reports the currently generated metrics from the real timing
+corpus and the held-out evaluation script.
+
+### Baseline Comparison
+
+Baseline model: linear regression on `instruction_count` only.
+
+| Evaluation | Candidate model RMSE | Candidate model Pearson r | Baseline RMSE | Baseline Pearson r |
+|---|---:|---:|---:|---:|
+| Grouped 5-fold by file | 11.0386 | 0.6358 | 10.9245 | 0.6172 |
+
+### Unseen-File Testing
+
+Held-out split by file (16 unseen files):
+
+| Evaluation | Candidate model RMSE | Candidate model Pearson r | Baseline RMSE | Baseline Pearson r |
+|---|---:|---:|---:|---:|
+| 80/20 file holdout | 13.4454 | 0.5486 | 14.2481 | 0.4646 |
+
+### Compile-Time Savings vs Code-Quality Impact Proxy
+
+Demo case: `testcases/complex.ll`
+
+- Total functions analyzed: 4
+- RUN decisions: 2
+- SKIP decisions: 2
+- Estimated compile-time saved: ~100 ms
+- Skipped functions average cyclomatic complexity: 5.0
+- Running functions average cyclomatic complexity: 1.0
+- Skipped functions average loop depth: 1.5
+- Running functions average loop depth: 0.0
+
+Interpretation: the policy skips functions that are structurally more complex
+and loop-heavy, which makes the compile-time savings defensible while the
+quality risk remains bounded to functions that are already poor candidates for
+vectorization.
+
+### Notes
+
+- The evaluation script is reproducible with `python/generate_evaluation.py`.
+- The generated JSON summary is stored in `python/evaluation_metrics.json`.

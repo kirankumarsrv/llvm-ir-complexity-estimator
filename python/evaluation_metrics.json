@@ -1,0 +1,29 @@
+{
+  "n_samples": 1159,
+  "n_files": 78,
+  "grouped_cv": {
+    "candidate_rmse": 11.038555634322828,
+    "candidate_pearson_r": 0.635750518928311,
+    "baseline_rmse": 10.924482116307402,
+    "baseline_pearson_r": 0.6171880932031993
+  },
+  "unseen_file_split": {
+    "candidate_rmse": 13.445386565885464,
+    "candidate_pearson_r": 0.548561716984404,
+    "baseline_rmse": 14.248129624589367,
+    "baseline_pearson_r": 0.46463397345410007,
+    "test_files": 16
+  },
+  "demo_summary": {
+    "total_functions": 4,
+    "passes_run": 2,
+    "passes_skipped": 2,
+    "estimated_saved": "~100 ms"
+  },
+  "quality_proxy": {
+    "skipped_avg_cyclomatic": 5.0,
+    "run_avg_cyclomatic": 1.0,
+    "skipped_avg_loop_depth": 1.5,
+    "run_avg_loop_depth": 0.0
+  }
+}
