@@ -1,0 +1,19 @@
+ML-Guided Compiler Pass Skipping Demo
+Pass     : LoopVectorize
+Model    : /root/llvm-complexity-estimator/python/complexity_model.pkl
+IR file  : /root/llvm-complexity-estimator/test/complex.ll
+Threshold: 3.0
+
+  Function               CC   BB   Br  Instr    Score  Decision    Reason
+  ------------------------------------------------------------------------------
+  no_op                   1    1    0      1    2.066  RUN         score 2.066 <= 3.0
+  heavy_arith             1    1    0     13    2.130  RUN         score 2.130 <= 3.0
+  nested_loops            4   10    3     23    6.968  SKIP        score 6.968 > 3.0
+  many_branches           6   14    5     30   10.161  SKIP        score 10.161 > 3.0
+
+SUMMARY
+----------------------------------------
+Total functions analyzed  : 4
+Passes RUN                : 2 (50.0%)
+Passes SKIPPED            : 2 (50.0%)
+Est. compile time saved   : ~100 ms

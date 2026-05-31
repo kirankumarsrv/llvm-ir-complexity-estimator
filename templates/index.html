@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LLVM IR Complexity Estimator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0a0a0f;--bg2:#0f0f1a;--bg3:#13131f;--bg4:#1a1a2e;
+  --green:#00ff88;--green2:#00cc6a;--green-dim:#003d1f;
+  --red:#ff4444;--red-dim:#3d0000;
+  --cyan:#00d4ff;--yellow:#ffd700;
+  --text:#c8d0e0;--text2:#6b7a99;
+  --border:#1e2540;--border2:#2a3560;
+  --glow-g:0 0 20px rgba(0,255,136,.35);
+  --glow-r:0 0 20px rgba(255,68,68,.35);
+  --glow-c:0 0 20px rgba(0,212,255,.35);
+}
+body{font-family:'JetBrains Mono',monospace;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+
+/* scanline */
+body::before{content:'';position:fixed;top:0;left:0;width:100%;height:100%;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.03) 2px,rgba(0,0,0,.03) 4px);
+  pointer-events:none;z-index:9999}
+
+/* ── LAYOUT ── */
+.container{max-width:1200px;margin:0 auto;padding:0 24px}
+
+/* ── HEADER ── */
+header{border-bottom:1px solid var(--border2);padding:28px 0;background:linear-gradient(180deg,#0d0d18 0%,transparent 100%)}
+.header-inner{display:flex;align-items:center;justify-content:space-between}
+.title-wrap h1{font-size:1.7rem;font-weight:700;color:var(--green);letter-spacing:-.5px;text-shadow:var(--glow-g)}
+.title-wrap h1 .cursor{display:inline-block;width:2px;height:1.2em;background:var(--green);margin-left:4px;vertical-align:middle;animation:blink 1s step-end infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+.title-wrap p{color:var(--text2);font-size:.8rem;margin-top:4px}
+.status{display:flex;align-items:center;gap:8px;font-size:.8rem;color:var(--text2)}
+.status-dot{width:8px;height:8px;border-radius:50%;background:#555;transition:.4s}
+.status-dot.online{background:var(--green);box-shadow:var(--glow-g)}
+
+/* ── UPLOAD ── */
+.section{padding:32px 0}
+.section-label{font-size:.72rem;color:var(--cyan);letter-spacing:2px;text-transform:uppercase;margin-bottom:16px}
+.drop-zone{border:2px dashed var(--border2);border-radius:12px;padding:48px;text-align:center;
+  background:var(--bg2);cursor:pointer;transition:.3s;position:relative}
+.drop-zone:hover,.drop-zone.drag{border-color:var(--green);box-shadow:var(--glow-g);background:rgba(0,255,136,.04)}
+.drop-icon{font-size:2.5rem;margin-bottom:16px}
+.drop-zone h3{color:var(--text);font-size:1rem;margin-bottom:8px}
+.drop-zone p{color:var(--text2);font-size:.8rem}
+.drop-zone input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.file-badge{display:inline-flex;align-items:center;gap:8px;background:var(--bg4);border:1px solid var(--border2);
+  border-radius:6px;padding:8px 16px;margin-top:16px;font-size:.82rem;color:var(--green);display:none}
+.btn-analyze{display:block;width:100%;max-width:340px;margin:24px auto 0;padding:14px 32px;
+  background:linear-gradient(135deg,var(--green2),var(--green));color:#000;font-weight:700;
+  font-family:inherit;font-size:.95rem;border:none;border-radius:8px;cursor:pointer;
+  letter-spacing:.5px;transition:.3s;box-shadow:var(--glow-g)}
+.btn-analyze:hover{transform:translateY(-2px);box-shadow:0 0 32px rgba(0,255,136,.55)}
+.btn-analyze:disabled{opacity:.4;cursor:not-allowed;transform:none}
+
+/* ── LOADING ── */
+#loading{display:none;padding:48px 0;text-align:center}
+.loading-steps{display:inline-flex;flex-direction:column;gap:12px;text-align:left}
+.ls{font-size:.85rem;color:var(--text2);opacity:0;transition:.5s}
+.ls.active{color:var(--green);opacity:1}
+.ls::before{content:'> ';color:var(--green)}
+.spinner{width:32px;height:32px;border:2px solid var(--border2);border-top-color:var(--green);
+  border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 24px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── RESULTS ── */
+#results{display:none}
+
+/* summary cards */
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:32px}
+.card{background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:20px;text-align:center;transition:.3s}
+.card:hover{border-color:var(--border2);transform:translateY(-3px)}
+.card.g{border-color:var(--green-dim);box-shadow:0 0 16px rgba(0,255,136,.15)}
+.card.r{border-color:var(--red-dim);box-shadow:0 0 16px rgba(255,68,68,.15)}
+.card-val{font-size:2rem;font-weight:700;color:var(--green);margin-bottom:4px}
+.card.r .card-val{color:var(--red)}
+.card-lbl{font-size:.72rem;color:var(--text2);text-transform:uppercase;letter-spacing:1px}
+
+/* charts row */
+.charts-row{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:32px}
+.chart-box{background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:20px}
+.chart-box h3{font-size:.8rem;color:var(--cyan);letter-spacing:1px;text-transform:uppercase;margin-bottom:16px}
+
+/* feature table */
+.tbl-wrap{background:var(--bg2);border:1px solid var(--border2);border-radius:12px;overflow:auto;margin-bottom:32px}
+table{width:100%;border-collapse:collapse;font-size:.8rem}
+thead th{background:var(--bg4);color:var(--cyan);font-weight:500;padding:12px 14px;
+  text-align:left;cursor:pointer;white-space:nowrap;user-select:none;border-bottom:1px solid var(--border2)}
+thead th:hover{color:var(--green)}
+thead th .sort-icon{color:var(--text2);margin-left:4px}
+tbody tr{border-bottom:1px solid var(--border);transition:.2s}
+tbody tr:last-child{border-bottom:none}
+tbody tr:hover{background:rgba(255,255,255,.025)}
+tbody td{padding:11px 14px;color:var(--text)}
+tbody tr.row-run td:first-child{border-left:3px solid var(--green)}
+tbody tr.row-skip td:first-child{border-left:3px solid var(--red)}
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:.72rem;font-weight:700}
+.badge-run{background:rgba(0,255,136,.12);color:var(--green);border:1px solid var(--green-dim)}
+.badge-skip{background:rgba(255,68,68,.12);color:var(--red);border:1px solid var(--red-dim)}
+
+/* decision cards */
+.decisions{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:16px;margin-bottom:32px}
+.d-card{background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:20px;transition:.3s}
+.d-card.run{border-color:rgba(0,255,136,.3);box-shadow:0 0 18px rgba(0,255,136,.12)}
+.d-card.skip{border-color:rgba(255,68,68,.3);box-shadow:0 0 18px rgba(255,68,68,.12)}
+.d-name{font-size:.85rem;color:var(--text);margin-bottom:12px;word-break:break-all}
+.d-badge{font-size:1.6rem;margin-bottom:8px}
+.d-score{font-size:1.5rem;font-weight:700;color:var(--green);margin-bottom:4px}
+.d-card.skip .d-score{color:var(--red)}
+.d-reason{font-size:.72rem;color:var(--text2)}
+
+/* download */
+.btn-dl{display:inline-flex;align-items:center;gap:8px;padding:11px 24px;
+  background:transparent;border:1px solid var(--cyan);color:var(--cyan);
+  font-family:inherit;font-size:.82rem;border-radius:6px;cursor:pointer;transition:.3s}
+.btn-dl:hover{background:rgba(0,212,255,.08);box-shadow:var(--glow-c)}
+.dl-row{text-align:right;margin-top:8px;margin-bottom:48px}
+
+@media(max-width:768px){
+  .cards{grid-template-columns:1fr 1fr}
+  .charts-row{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<header>
+<div class="container">
+<div class="header-inner">
+  <div class="title-wrap">
+    <h1>LLVM IR Complexity Estimator<span class="cursor"></span></h1>
+    <p>ML-Powered Compile-Time Pass Scheduling &nbsp;·&nbsp; LLVM 18 &nbsp;·&nbsp; scikit-learn</p>
+  </div>
+  <div class="status">
+    <div class="status-dot" id="statusDot"></div>
+    <span id="statusTxt">checking...</span>
+  </div>
+</div>
+</div>
+</header>
+
+<main class="container">
+<div class="section">
+  <div class="section-label">// Upload IR File</div>
+  <div class="drop-zone" id="dropZone">
+    <input type="file" id="fileInput" accept=".ll">
+    <div class="drop-icon">⬡</div>
+    <h3>Drop a <code>.ll</code> file here</h3>
+    <p>or click to browse &nbsp;—&nbsp; LLVM IR files only</p>
+    <div class="file-badge" id="fileBadge">
+      <span>📄</span><span id="fileName"></span>
+    </div>
+  </div>
+  <button class="btn-analyze" id="btnAnalyze" disabled onclick="analyze()">
+    ▶ &nbsp;Analyze IR
+  </button>
+</div>
+
+<div id="loading">
+  <div class="spinner"></div>
+  <div class="loading-steps">
+    <div class="ls" id="ls1">Parsing LLVM IR file...</div>
+    <div class="ls" id="ls2">Extracting 11 complexity features...</div>
+    <div class="ls" id="ls3">Running ML model (GradientBoosting)...</div>
+    <div class="ls" id="ls4">Computing pass-skip decisions...</div>
+    <div class="ls" id="ls5">Building results...</div>
+  </div>
+</div>
+
+<div id="results">
+  <div class="section">
+    <div class="section-label">// Summary</div>
+    <div class="cards">
+      <div class="card"><div class="card-val" id="cTotal">–</div><div class="card-lbl">Functions</div></div>
+      <div class="card g"><div class="card-val" id="cRun">–</div><div class="card-lbl">Passes RUN</div></div>
+      <div class="card r"><div class="card-val" id="cSkip">–</div><div class="card-lbl">Passes SKIPPED</div></div>
+      <div class="card"><div class="card-val" id="cTime" style="color:var(--yellow)">–</div><div class="card-lbl">Time Saved</div></div>
+    </div>
+  </div>
+
+  <div class="section" style="padding-top:0">
+    <div class="section-label">// Complexity Charts</div>
+    <div class="charts-row">
+      <div class="chart-box">
+        <h3>Complexity Score per Function</h3>
+        <canvas id="barChart" height="220"></canvas>
+      </div>
+      <div class="chart-box">
+        <h3>Feature Radar — All Functions</h3>
+        <canvas id="radarChart" height="220"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="section" style="padding-top:0">
+    <div class="section-label">// Feature Table</div>
+    <div class="tbl-wrap">
+      <table id="featureTable">
+        <thead>
+          <tr>
+            <th onclick="sortTable(0)">Function <span class="sort-icon">⇅</span></th>
+            <th onclick="sortTable(1)">Instrs <span class="sort-icon">⇅</span></th>
+            <th onclick="sortTable(2)">BBs <span class="sort-icon">⇅</span></th>
+            <th onclick="sortTable(3)">CFG Edges <span class="sort-icon">⇅</span></th>
+            <th onclick="sortTable(4)">Branches <span class="sort-icon">⇅</span></th>
+            <th onclick="sortTable(5)">PHI Nodes <span class="sort-icon">⇅</span></th>
+            <th onclick="sortTable(6)">Arith Ops <span class="sort-icon">⇅</span></th>
+            <th onclick="sortTable(7)">CC <span class="sort-icon">⇅</span></th>
+            <th onclick="sortTable(8)">Score <span class="sort-icon">⇅</span></th>
+            <th>Decision</th>
+          </tr>
+        </thead>
+        <tbody id="tblBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="section" style="padding-top:0">
+    <div class="section-label">// Pass Decisions</div>
+    <div class="decisions" id="decisionsGrid"></div>
+  </div>
+
+  <div class="dl-row">
+    <button class="btn-dl" onclick="downloadJSON()">
+      ⬇ &nbsp;Export results.json
+    </button>
+  </div>
+</div>
+</main>
+<script>
+let _data = null;
+let _sortDir = {};
+let _barChart = null, _radarChart = null;
+
+// ── health check ──────────────────────────────────────────────────────────────
+async function checkHealth() {
+  try {
+    const r = await fetch('/health');
+    const j = await r.json();
+    const ok = j.status === 'ok' && j.model && j.extractor;
+    document.getElementById('statusDot').className = 'status-dot' + (ok ? ' online' : '');
+    document.getElementById('statusTxt').textContent = ok ? 'backend online' : 'backend partial';
+  } catch { document.getElementById('statusTxt').textContent = 'offline'; }
+}
+checkHealth();
+setInterval(checkHealth, 8000);
+
+// ── file input ────────────────────────────────────────────────────────────────
+const dropZone = document.getElementById('dropZone');
+const fileInput = document.getElementById('fileInput');
+
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault(); dropZone.classList.remove('drag');
+  const f = e.dataTransfer.files[0];
+  if (f) setFile(f);
+});
+fileInput.addEventListener('change', () => { if (fileInput.files[0]) setFile(fileInput.files[0]); });
+
+function setFile(f) {
+  document.getElementById('fileName').textContent = f.name;
+  document.getElementById('fileBadge').style.display = 'inline-flex';
+  document.getElementById('btnAnalyze').disabled = false;
+  fileInput._file = f;
+}
+
+// ── analyze ───────────────────────────────────────────────────────────────────
+async function analyze() {
+  const f = fileInput._file || fileInput.files[0];
+  if (!f) return;
+
+  document.getElementById('results').style.display = 'none';
+  document.getElementById('loading').style.display = 'block';
+  document.getElementById('btnAnalyze').disabled = true;
+
+  const steps = ['ls1','ls2','ls3','ls4','ls5'];
+  steps.forEach(id => document.getElementById(id).className = 'ls');
+  for (let i = 0; i < steps.length; i++) {
+    await delay(340 + i * 280);
+    document.getElementById(steps[i]).className = 'ls active';
+  }
+
+  const fd = new FormData();
+  fd.append('file', f);
+  try {
+    const resp = await fetch('/analyze', { method: 'POST', body: fd });
+    const json = await resp.json();
+    document.getElementById('loading').style.display = 'none';
+    if (json.error) { alert('Error: ' + json.error); document.getElementById('btnAnalyze').disabled = false; return; }
+    _data = json;
+    renderResults(json);
+    document.getElementById('results').style.display = 'block';
+  } catch(e) {
+    document.getElementById('loading').style.display = 'none';
+    alert('Request failed: ' + e);
+  }
+  document.getElementById('btnAnalyze').disabled = false;
+}
+
+function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+// ── render ────────────────────────────────────────────────────────────────────
+function renderResults(data) {
+  const s = data.summary;
+  document.getElementById('cTotal').textContent = s.total;
+  document.getElementById('cRun').textContent   = s.run;
+  document.getElementById('cSkip').textContent  = s.skipped;
+  document.getElementById('cTime').textContent  = '~' + s.time_saved_ms + ' ms';
+
+  renderTable(data.functions);
+  renderDecisions(data.functions);
+  renderBarChart(data.functions, s.threshold);
+  renderRadar(data.functions);
+}
+
+// ── table ─────────────────────────────────────────────────────────────────────
+function renderTable(fns) {
+  const tb = document.getElementById('tblBody');
+  tb.innerHTML = '';
+  fns.forEach(fn => {
+    const f = fn.features;
+    const isSkip = fn.decision === 'SKIP';
+    const row = tb.insertRow();
+    row.className = isSkip ? 'row-skip' : 'row-run';
+    const badge = isSkip
+      ? '<span class="badge badge-skip">SKIP</span>'
+      : '<span class="badge badge-run">RUN</span>';
+    row.innerHTML = `
+      <td>${fn.name}</td>
+      <td>${f.instruction_count}</td>
+      <td>${f.basic_block_count}</td>
+      <td>${f.cfg_edges}</td>
+      <td>${f.branch_count}</td>
+      <td>${f.phi_count}</td>
+      <td>${f.arithmetic_ops}</td>
+      <td>${f.cyclomatic_complexity}</td>
+      <td style="color:${isSkip?'var(--red)':'var(--green)'};font-weight:700">${fn.score.toFixed(3)}</td>
+      <td>${badge}</td>`;
+  });
+}
+
+let _sortCol = -1;
+function sortTable(col) {
+  _sortDir[col] = !_sortDir[col];
+  const tb = document.getElementById('tblBody');
+  const rows = Array.from(tb.rows);
+  rows.sort((a, b) => {
+    const va = a.cells[col].textContent.trim();
+    const vb = b.cells[col].textContent.trim();
+    const na = parseFloat(va), nb = parseFloat(vb);
+    const cmp = isNaN(na) ? va.localeCompare(vb) : na - nb;
+    return _sortDir[col] ? cmp : -cmp;
+  });
+  rows.forEach(r => tb.appendChild(r));
+}
+
+// ── decision cards ────────────────────────────────────────────────────────────
+function renderDecisions(fns) {
+  const grid = document.getElementById('decisionsGrid');
+  grid.innerHTML = '';
+  fns.forEach(fn => {
+    const isSkip = fn.decision === 'SKIP';
+    const div = document.createElement('div');
+    div.className = 'd-card ' + (isSkip ? 'skip' : 'run');
+    div.innerHTML = `
+      <div class="d-name">${fn.name}</div>
+      <div class="d-badge">${isSkip ? '❌' : '✅'}</div>
+      <div class="d-score">${fn.score.toFixed(3)}</div>
+      <div class="d-reason">${fn.reason}</div>`;
+    grid.appendChild(div);
+  });
+}
+
+// ── bar chart ─────────────────────────────────────────────────────────────────
+function renderBarChart(fns, threshold) {
+  if (_barChart) { _barChart.destroy(); }
+  const ctx = document.getElementById('barChart').getContext('2d');
+  const labels = fns.map(f => f.name);
+  const scores = fns.map(f => f.score);
+  const colors = fns.map(f => f.decision === 'SKIP' ? 'rgba(255,68,68,.75)' : 'rgba(0,255,136,.75)');
+  _barChart = new Chart(ctx, {
+    type: 'bar',
+    data: { labels, datasets: [{
+      label: 'Complexity Score', data: scores,
+      backgroundColor: colors, borderColor: colors.map(c => c.replace('.75','.9')),
+      borderWidth: 1, borderRadius: 4,
+    }]},
+    options: {
+      responsive: true, animation: { duration: 900, easing: 'easeOutQuart' },
+      plugins: {
+        legend: { display: false },
+        annotation: {},
+        tooltip: { callbacks: { label: ctx => ` Score: ${ctx.parsed.y.toFixed(3)}` } },
+      },
+      scales: {
+        x: { ticks: { color: '#6b7a99', font: { family: 'JetBrains Mono', size: 11 } }, grid: { color: '#1e2540' } },
+        y: { ticks: { color: '#6b7a99', font: { family: 'JetBrains Mono', size: 11 } }, grid: { color: '#1e2540' },
+             afterDraw(chart) {
+               const ctx2 = chart.ctx;
+               const yScale = chart.scales.y;
+               const xScale = chart.scales.x;
+               const y = yScale.getPixelForValue(threshold);
+               ctx2.save();
+               ctx2.setLineDash([5, 4]);
+               ctx2.strokeStyle = '#ffd700aa';
+               ctx2.lineWidth = 1.5;
+               ctx2.beginPath();
+               ctx2.moveTo(xScale.left, y);
+               ctx2.lineTo(xScale.right, y);
+               ctx2.stroke();
+               ctx2.setLineDash([]);
+               ctx2.fillStyle = '#ffd700';
+               ctx2.font = '10px JetBrains Mono';
+               ctx2.fillText('threshold ' + threshold, xScale.right - 90, y - 5);
+               ctx2.restore();
+             }
+        },
+      },
+    },
+  });
+}
+
+// ── radar chart ───────────────────────────────────────────────────────────────
+const RADAR_FEATS = ['instruction_count','basic_block_count','cfg_edges','branch_count','phi_count','arithmetic_ops'];
+const RADAR_LABELS = ['Instructions','Basic Blocks','CFG Edges','Branches','PHI Nodes','Arith Ops'];
+const PALETTE = ['rgba(0,255,136,.7)','rgba(255,68,68,.7)','rgba(0,212,255,.7)','rgba(255,215,0,.7)'];
+
+function renderRadar(fns) {
+  if (_radarChart) { _radarChart.destroy(); }
+  const ctx = document.getElementById('radarChart').getContext('2d');
+  const maxVals = RADAR_FEATS.map(k => Math.max(...fns.map(f => f.features[k] || 0), 1));
+  const datasets = fns.map((fn, i) => ({
+    label: fn.name,
+    data: RADAR_FEATS.map((k, j) => (fn.features[k] || 0) / maxVals[j] * 10),
+    borderColor: PALETTE[i % PALETTE.length],
+    backgroundColor: PALETTE[i % PALETTE.length].replace('.7', '.08'),
+    borderWidth: 1.5, pointRadius: 3,
+  }));
+  _radarChart = new Chart(ctx, {
+    type: 'radar',
+    data: { labels: RADAR_LABELS, datasets },
+    options: {
+      responsive: true, animation: { duration: 900 },
+      plugins: { legend: { labels: { color: '#6b7a99', font: { family: 'JetBrains Mono', size: 10 } } } },
+      scales: { r: {
+        ticks: { display: false }, grid: { color: '#1e2540' },
+        pointLabels: { color: '#6b7a99', font: { family: 'JetBrains Mono', size: 10 } },
+        angleLines: { color: '#1e2540' },
+      }},
+    },
+  });
+}
+
+// ── download ──────────────────────────────────────────────────────────────────
+function downloadJSON() {
+  if (!_data) return;
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([JSON.stringify(_data, null, 2)], { type: 'application/json' }));
+  a.download = 'llvm_complexity_results.json';
+  a.click();
+}
+</script>
+</body>
+</html>
