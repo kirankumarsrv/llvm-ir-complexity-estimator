@@ -14,7 +14,10 @@ from sklearn.pipeline import Pipeline
 from sklearn.metrics import mean_squared_error
 from scipy.stats import pearsonr
 
-FEATURE_COLS=['instruction_count','basic_block_count','cfg_edges','branch_count','phi_count','loop_depth_max','call_count','load_store_count','arithmetic_ops','cast_ops','cyclomatic_complexity','alias_query_density','type_graph_complexity']
+BASE_FEATURE_COLS=['instruction_count','basic_block_count','cfg_edges','branch_count','phi_count','loop_depth_max','call_count','load_store_count','arithmetic_ops','cast_ops','cyclomatic_complexity','alias_query_density','type_graph_complexity']
+# derived features we will add
+DERIVED_FEATURES=['inst_per_bb','calls_per_bb']
+FEATURE_COLS = BASE_FEATURE_COLS + DERIVED_FEATURES
 
 
 def extract_features(extractor, filepath):
@@ -29,6 +32,7 @@ def main():
     p.add_argument('--extractor', default='build/IRComplexityExtractor')
     p.add_argument('--out-model', default='python/complexity_model_corpus.pkl')
     p.add_argument('--out-eval', default='python/eval_retrain.json')
+    p.add_argument('--aggregate-file', action='store_true', help='aggregate features per file and train on file-level target')
     args=p.parse_args()
 
     tim = pd.read_csv(args.timing)
@@ -50,7 +54,14 @@ def main():
         recs = extract_features(extractor, f)
         for rec in recs:
             feats = rec['features']
-            row = {c: float(feats.get(c,0)) for c in FEATURE_COLS}
+            # compute derived features
+            instr = float(feats.get('instruction_count',0))
+            bb = float(feats.get('basic_block_count',1))
+            calls = float(feats.get('call_count',0))
+            inst_per_bb = instr / max(bb,1.0)
+            calls_per_bb = calls / max(bb,1.0)
+            row = {c: float(feats.get(c,0)) for c in BASE_FEATURE_COLS}
+            row.update({'inst_per_bb': inst_per_bb, 'calls_per_bb': calls_per_bb})
             row['file'] = fpath
             row['function'] = rec['function']
             row['target_ms_per_func'] = float(ms_per_func)
@@ -60,6 +71,11 @@ def main():
         raise SystemExit('No rows to train on')
 
     df = pd.DataFrame(rows)
+    # Optionally aggregate per-file (mean of features) to predict ms_per_function per file
+    if args.aggregate_file:
+        agg = df.groupby('file')
+        df = agg[FEATURE_COLS + ['target_ms_per_func']].mean().reset_index()
+        # when aggregated, the 'function' column no longer applies
     X = df[FEATURE_COLS].to_numpy(dtype=float)
     y = df['target_ms_per_func'].to_numpy(dtype=float)
 
